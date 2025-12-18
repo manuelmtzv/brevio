@@ -3,23 +3,29 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/manuelmtzv/brevio/internal/api/services"
 	"github.com/manuelmtzv/brevio/internal/http/render"
-	"github.com/manuelmtzv/brevio/internal/models"
 	"go.uber.org/zap"
 )
 
 type HealthHandler struct {
-	Logger *zap.SugaredLogger
+	Service services.HealthService
+	Logger  *zap.SugaredLogger
 }
 
-func NewHealthHandler(logger *zap.SugaredLogger) *HealthHandler {
+func NewHealthHandler(service services.HealthService, logger *zap.SugaredLogger) *HealthHandler {
 	return &HealthHandler{
-		Logger: logger,
+		Service: service,
+		Logger:  logger,
 	}
 }
 
-func (h *HealthHandler) Check(w http.ResponseWriter, r *http.Request) {
-	render.JSON(w, http.StatusOK, models.HealthCheckResponse{
-		Status: "ok",
-	})
+func (h *HealthHandler) Check(w http.ResponseWriter, r *http.Request) error {
+	result, err := h.Service.Check()
+	if err != nil {
+		return err
+	}
+
+	render.JSON(w, http.StatusOK, result)
+	return nil
 }

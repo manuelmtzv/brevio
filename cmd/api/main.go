@@ -1,9 +1,12 @@
 package main
 
 import (
+	"github.com/go-redis/redis/v8"
 	"github.com/manuelmtzv/brevio/internal/api"
 	"github.com/manuelmtzv/brevio/internal/api/handlers"
+	"github.com/manuelmtzv/brevio/internal/api/services"
 	"github.com/manuelmtzv/brevio/internal/config"
+	"github.com/manuelmtzv/brevio/internal/store"
 	"go.uber.org/zap"
 )
 
@@ -17,13 +20,27 @@ func main() {
 
 	cfg := config.LoadConfig()
 
-	app := api.NewApplication(cfg, logger)
-	handlers := handlers.NewHandlers(logger)
-	router := api.NewRouter(api.RouterDeps{
-		Logger: logger,
-		Handlers: handlers,
-	})  
+	redisAddr, err := redis.ParseURL(cfg.RedisURL)
+	if err != nil {
+		logger.Fatal("failed to parse redis url")
+	}
 
+	redisClient := redis.NewClient(redisAddr)
+	storage := store.NewStorage(redisClient)
+	services := services.NewServices(storage, logger)
+
+	handlers := handlers.NewHandlers(handlers.HandlerDeps{
+		Health:    services.Health,
+		ShortURLs: services.ShortURLs,
+		Logger:    logger,
+	})
+
+	router := api.NewRouter(api.RouterDeps{
+		Logger:   logger,
+		Handlers: handlers,
+	})
+
+	app := api.NewApplication(cfg, logger)
 	app.SetRouter(
 		router,
 	)

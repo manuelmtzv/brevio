@@ -10,8 +10,9 @@ import (
 )
 
 type RouterDeps struct {
-	Logger   *zap.SugaredLogger
-	Handlers *handlers.Handlers
+	Logger       *zap.SugaredLogger
+	Handlers     *handlers.Handlers
+	ErrorHandler ErrorHandler
 }
 
 func NewRouter(deps RouterDeps) http.Handler {
@@ -23,7 +24,7 @@ func NewRouter(deps RouterDeps) http.Handler {
 	r.Use(middleware.Recoverer)
 
 	r.Route("/api", func(r chi.Router) {
-		r.Get("/health", deps.Handlers.Health.Check)
+		r.Get("/health", Adapt(deps.Handlers.Health.Check, deps.ErrorHandler))
 	})
 
 	return r
