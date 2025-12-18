@@ -31,43 +31,37 @@ func (app *Application) SetRouter(router http.Handler) {
 	app.Router = router
 }
 
-func (app *Application) ServeHTTP() error {
+func (app *Application) Run() error {
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%s", app.Config.Port),
 		Handler: app.Router,
 	}
 
-	shutdownErrorStream := make(chan error)
+	shutdownErr := make(chan error, 1)
 
 	go func() {
 		quit := make(chan os.Signal, 1)
 		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		defer signal.Stop(quit)
 
 		s := <-quit
 
 		app.Logger.Infof("received signal: %s, shutting down server...", s)
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		err := server.Shutdown(ctx)
-		if err != nil {
-			shutdownErrorStream <- err
-			return
-		}
-
-		shutdownErrorStream <- nil
+		shutdownErr <- server.Shutdown(ctx)
 	}()
 
 	app.Logger.Infow("starting server", "port", app.Config.Port)
 
 	err := server.ListenAndServe()
-	if !errors.Is(err, http.ErrServerClosed) {
+	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
 
-	err = <-shutdownErrorStream
-	if err != nil {
+	if err := <-shutdownErr; err != nil {
 		return err
 	}
 
