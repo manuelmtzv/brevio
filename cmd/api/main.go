@@ -1,9 +1,8 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/manuelmtzv/brevio/internal/api"
+	"github.com/manuelmtzv/brevio/internal/api/handlers"
 	"github.com/manuelmtzv/brevio/internal/config"
 	"go.uber.org/zap"
 )
@@ -19,12 +18,17 @@ func main() {
 	cfg := config.LoadConfig()
 
 	app := api.NewApplication(cfg, logger)
+	handlers := handlers.NewHandlers(logger)
+	router := api.NewRouter(api.RouterDeps{
+		Logger: logger,
+		Handlers: handlers,
+	})  
 
 	app.SetRouter(
-		http.DefaultServeMux, // TODO: implement real router
+		router,
 	)
 
-	if err := app.ServeHTTP(); err != nil {
+	if err := app.Run(); err != nil {
 		logger.Error(err.Error())
 	}
 }
