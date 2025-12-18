@@ -32,7 +32,7 @@ func (s *ShortURLStore) Create(ctx context.Context, data *models.CreateShortURL)
 
 	createdAt := time.Now()
 
-	fields := map[string]interface{}{
+	fields := map[string]any{
 		"code":      data.Code,
 		"target":    data.Target,
 		"visits":    0,
