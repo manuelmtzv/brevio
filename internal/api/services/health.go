@@ -20,6 +20,6 @@ func NewHealthService(store store.Storage, logger *zap.SugaredLogger) HealthServ
 
 func (s *healthService) Check() (*models.HealthCheck, error) {
 	return &models.HealthCheck{
-		Status: models.OK,
+		Status: models.HealthOK,
 	}, nil
 }

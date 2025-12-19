@@ -6,6 +6,7 @@ import (
 	"github.com/manuelmtzv/brevio/internal/api/handlers"
 	"github.com/manuelmtzv/brevio/internal/api/services"
 	"github.com/manuelmtzv/brevio/internal/config"
+	appi18n "github.com/manuelmtzv/brevio/internal/i18n"
 	"github.com/manuelmtzv/brevio/internal/store"
 	"go.uber.org/zap"
 )
@@ -19,6 +20,7 @@ func main() {
 	logger.Info("Welcome to Brevio!")
 
 	cfg := config.LoadConfig()
+	bundle := appi18n.InitI18n()
 
 	redisAddr, err := redis.ParseURL(cfg.RedisURL)
 	if err != nil {
@@ -28,10 +30,12 @@ func main() {
 	redisClient := redis.NewClient(redisAddr)
 	storage := store.NewStorage(redisClient)
 	services := services.NewServices(storage, logger)
+	localizer := api.NewLocalizer(bundle)
 
 	handlers := handlers.NewHandlers(handlers.HandlerDeps{
 		Health:    services.Health,
 		ShortURLs: services.ShortURLs,
+		Localizer: localizer,
 		Logger:    logger,
 	})
 

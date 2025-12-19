@@ -8,15 +8,11 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-type Localizer interface {
-	Message(ctx context.Context, messageID string, defaultMsg string, data map[string]any) string
-}
-
 type localizer struct {
 	bundle *i18n.Bundle
 }
 
-func NewLocalizer(bundle *i18n.Bundle) Localizer {
+func NewLocalizer(bundle *i18n.Bundle) appi18n.Localizer {
 	return &localizer{bundle: bundle}
 }
 

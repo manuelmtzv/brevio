@@ -5,10 +5,10 @@ import (
 	"net/http"
 )
 
-func JSON(w http.ResponseWriter, status int, v any) {
+func JSON(w http.ResponseWriter, status int, v any) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
+	return json.NewEncoder(w).Encode(v)
 }
 
 func Empty(w http.ResponseWriter, status int) {

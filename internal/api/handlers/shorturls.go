@@ -2,17 +2,20 @@ package handlers
 
 import (
 	"github.com/manuelmtzv/brevio/internal/api/services"
+	"github.com/manuelmtzv/brevio/internal/i18n"
 	"go.uber.org/zap"
 )
 
 type ShortURLHandler struct {
-	Service services.ShortURLService
-	Logger  *zap.SugaredLogger
+	service   services.ShortURLService
+	localizer i18n.Localizer
+	logger    *zap.SugaredLogger
 }
 
-func NewShortURLHandler(service services.ShortURLService, logger *zap.SugaredLogger) *ShortURLHandler {
+func NewShortURLHandler(service services.ShortURLService, localizer i18n.Localizer, logger *zap.SugaredLogger) *ShortURLHandler {
 	return &ShortURLHandler{
-		Service: service,
-		Logger:  logger,
+		service:   service,
+		localizer: localizer,
+		logger:    logger,
 	}
 }

@@ -3,29 +3,38 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/manuelmtzv/brevio/internal/api/presenters"
 	"github.com/manuelmtzv/brevio/internal/api/services"
 	"github.com/manuelmtzv/brevio/internal/http/render"
+	"github.com/manuelmtzv/brevio/internal/i18n"
 	"go.uber.org/zap"
 )
 
 type HealthHandler struct {
-	Service services.HealthService
-	Logger  *zap.SugaredLogger
+	service   services.HealthService
+	localizer i18n.Localizer
+	logger    *zap.SugaredLogger
 }
 
-func NewHealthHandler(service services.HealthService, logger *zap.SugaredLogger) *HealthHandler {
+func NewHealthHandler(
+	service services.HealthService,
+	localizer i18n.Localizer,
+	logger *zap.SugaredLogger,
+) *HealthHandler {
 	return &HealthHandler{
-		Service: service,
-		Logger:  logger,
+		service:   service,
+		localizer: localizer,
+		logger:    logger,
 	}
 }
 
 func (h *HealthHandler) Check(w http.ResponseWriter, r *http.Request) error {
-	result, err := h.Service.Check()
+	result, err := h.service.Check()
 	if err != nil {
 		return err
 	}
 
-	render.JSON(w, http.StatusOK, result)
-	return nil
+	resp := presenters.Health(result, h.localizer, r.Context())
+
+	return render.JSON(w, http.StatusOK, resp)
 }
