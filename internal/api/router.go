@@ -27,7 +27,9 @@ func NewRouter(deps RouterDeps) http.Handler {
 	r.Use(customMiddleware.Language)
 
 	r.Route("/api", func(r chi.Router) {
-		r.Get("/health", Adapt(deps.Handlers.Health.Check, deps.ErrorHandler))
+		r.Get("/health", Adapt(deps.Handlers.Health.HandleCheck, deps.ErrorHandler))
+
+		r.Post("/shorturls", Adapt(deps.Handlers.ShortURL.HandleCreate, deps.ErrorHandler))
 	})
 
 	return r

@@ -28,13 +28,13 @@ func NewHealthHandler(
 	}
 }
 
-func (h *HealthHandler) Check(w http.ResponseWriter, r *http.Request) error {
+func (h *HealthHandler) HandleCheck(w http.ResponseWriter, r *http.Request) error {
 	result, err := h.service.Check()
 	if err != nil {
 		return err
 	}
 
-	resp := presenters.Health(result, h.localizer, r.Context())
+	resp := presenters.Health(r.Context(), result, h.localizer)
 
 	return render.JSON(w, http.StatusOK, resp)
 }

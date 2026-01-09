@@ -19,14 +19,14 @@ func NewShortURLStore(rc *redis.Client) *ShortURLStore {
 	}
 }
 
-func (s *ShortURLStore) Create(ctx context.Context, data *models.CreateShortURL) (*models.ShortURL, error) {
+func (s *ShortURLStore) Create(ctx context.Context, data models.CreateShortURL) (*models.ShortURL, error) {
 	key := s.key(data.Code)
 
-	ok, err := s.rc.SetNX(ctx, key, 1, 0).Result()
+	exists, err := s.rc.Exists(ctx, key).Result()
 	if err != nil {
 		return nil, err
 	}
-	if !ok {
+	if exists > 0 {
 		return nil, ErrCodeAlreadyExists
 	}
 

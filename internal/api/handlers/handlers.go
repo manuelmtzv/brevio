@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/manuelmtzv/brevio/internal/api/presenters"
 	"github.com/manuelmtzv/brevio/internal/api/services"
 	"go.uber.org/zap"
 
@@ -8,10 +9,11 @@ import (
 )
 
 type HandlerDeps struct {
-	Health    services.HealthService
-	ShortURLs services.ShortURLService
-	Localizer appi18n.Localizer
-	Logger    *zap.SugaredLogger
+	Health     services.HealthService
+	ShortURLs  services.ShortURLService
+	Localizer  appi18n.Localizer
+	URLBuilder presenters.URLBuilder
+	Logger     *zap.SugaredLogger
 }
 
 type Handlers struct {
@@ -21,7 +23,18 @@ type Handlers struct {
 
 func NewHandlers(deps HandlerDeps) *Handlers {
 	return &Handlers{
-		Health:   NewHealthHandler(deps.Health, deps.Localizer, deps.Logger),
-		ShortURL: NewShortURLHandler(deps.ShortURLs, deps.Localizer, deps.Logger),
+		Health: NewHealthHandler(
+			deps.Health,
+			deps.Localizer,
+			deps.Logger,
+		),
+		ShortURL: NewShortURLHandler(
+			ShortURLHandlerDeps{
+				Service:    deps.ShortURLs,
+				Localizer:  deps.Localizer,
+				URLBuilder: deps.URLBuilder,
+				Logger:     deps.Logger,
+			},
+		),
 	}
 }

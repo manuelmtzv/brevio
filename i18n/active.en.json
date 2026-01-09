@@ -1,3 +1,5 @@
 {
-  "Health.OK": "API is healthy and operational"
+  "Health.OK": "API is healthy and operational",
+
+  "Error.Validation": "Validation failed"
 }

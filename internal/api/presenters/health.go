@@ -12,7 +12,7 @@ type HealthResponse struct {
 	Status string `json:"status"`
 }
 
-func Health(h *models.HealthCheck, l appi18n.Localizer, ctx context.Context) HealthResponse {
+func Health(ctx context.Context, h *models.HealthCheck, l appi18n.Localizer) HealthResponse {
 	return HealthResponse{
 		Status: l.Message(
 			ctx,

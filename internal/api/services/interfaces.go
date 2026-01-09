@@ -11,5 +11,5 @@ type HealthService interface {
 }
 
 type ShortURLService interface {
-	Create(ctx context.Context, input models.CreateShortURL) (*models.ShortURL, error)
+	Create(ctx context.Context, input CreateShortURLInput) (*models.ShortURL, error)
 }

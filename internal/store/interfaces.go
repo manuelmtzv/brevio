@@ -7,6 +7,6 @@ import (
 )
 
 type ShortURLStorage interface {
-	Create(ctx context.Context, data *models.CreateShortURL) (*models.ShortURL, error)
+	Create(ctx context.Context, data models.CreateShortURL) (*models.ShortURL, error)
 	FindByCode(ctx context.Context, code string) (*models.ShortURL, error)
 }
